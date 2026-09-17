@@ -76,17 +76,14 @@ export default function OrdersPage() {
   }, []);
 
   useEffect(() => {
-    fetchAll();
-    fetch("/api/auth/me").then(r => r.json()).then(d => setUserRole(d.user?.role || "staff"));
-  }, [fetchAll]);
-
-  // Auto-fill price when property selected
-  useEffect(() => {
-    if (addForm.propertyId) {
-      const prop = properties.find(p => p.id.toString() === addForm.propertyId);
-      if (prop) setAddForm(f => ({ ...f, totalAmount: prop.price }));
-    }
-  }, [addForm.propertyId, properties]);
+    const loadData = async () => {
+      await fetchAll();
+      const res = await fetch("/api/auth/me");
+      const d = await res.json();
+      setUserRole(d.user?.role || "staff");
+    };
+    loadData();
+  }, []);
 
   const filtered = orders.filter((o) => {
     const matchSearch = !search || o.orderNumber.toLowerCase().includes(search.toLowerCase()) ||
@@ -310,7 +307,11 @@ export default function OrdersPage() {
           </div>
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-slate-700 mb-1">Properti *</label>
-            <select value={addForm.propertyId} onChange={e => setAddForm({ ...addForm, propertyId: e.target.value })}
+            <select value={addForm.propertyId} onChange={e => {
+              const propId = e.target.value;
+              const prop = properties.find(p => p.id.toString() === propId);
+              setAddForm(f => ({ ...f, propertyId: propId, totalAmount: prop?.price || f.totalAmount }));
+            }}
               className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white">
               <option value="">-- Pilih Properti --</option>
               {properties.filter(p => p).map(p => <option key={p.id} value={p.id}>{p.name} ({p.code}) - {formatCurrency(Number(p.price))}</option>)}

@@ -31,7 +31,12 @@ export default function AlertsPage() {
     }
   }, []);
 
-  useEffect(() => { fetchAlerts(); }, [fetchAlerts]);
+  useEffect(() => {
+    const loadAlerts = async () => {
+      await fetchAlerts();
+    };
+    loadAlerts();
+  }, []);
 
   const handleMarkRead = async (id: number) => {
     try {

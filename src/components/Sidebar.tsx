@@ -49,21 +49,18 @@ const roleColors: Record<string, string> = {
   staff: "bg-green-100 text-green-800",
 };
 
-export default function Sidebar({ user, alertCount = 0 }: SidebarProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const pathname = usePathname();
-  const router = useRouter();
-
-  const handleLogout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/login");
-  };
-
+function SidebarContent({ user, alertCount, pathname, onNavigate, onLogout }: {
+  user: SidebarProps["user"];
+  alertCount: number;
+  pathname: string;
+  onNavigate: () => void;
+  onLogout: () => void;
+}) {
   const filteredNav = navItems.filter((item) =>
     item.roles.includes(user.role)
   );
 
-  const SidebarContent = () => (
+  return (
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="p-5 border-b border-slate-700">
@@ -103,7 +100,7 @@ export default function Sidebar({ user, alertCount = 0 }: SidebarProps) {
             <Link
               key={item.href}
               href={item.href}
-              onClick={() => setIsOpen(false)}
+              onClick={onNavigate}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 group ${
                 isActive
                   ? "bg-amber-500 text-white shadow-md"
@@ -126,7 +123,7 @@ export default function Sidebar({ user, alertCount = 0 }: SidebarProps) {
       {/* Logout */}
       <div className="p-3 border-t border-slate-700">
         <button
-          onClick={handleLogout}
+          onClick={onLogout}
           className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-red-900/40 hover:text-red-400 transition-all duration-150"
         >
           <LogOut className="w-5 h-5" />
@@ -135,6 +132,19 @@ export default function Sidebar({ user, alertCount = 0 }: SidebarProps) {
       </div>
     </div>
   );
+}
+
+export default function Sidebar({ user, alertCount = 0 }: SidebarProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/login");
+  };
+
+  const handleNavigate = () => setIsOpen(false);
 
   return (
     <>
@@ -165,13 +175,25 @@ export default function Sidebar({ user, alertCount = 0 }: SidebarProps) {
       {/* Mobile Sidebar */}
       <div className={`lg:hidden fixed top-0 left-0 h-full w-72 z-40 bg-slate-800 transform transition-transform duration-300 ${isOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="pt-16">
-          <SidebarContent />
+          <SidebarContent
+            user={user}
+            alertCount={alertCount}
+            pathname={pathname}
+            onNavigate={handleNavigate}
+            onLogout={handleLogout}
+          />
         </div>
       </div>
 
       {/* Desktop Sidebar */}
       <div className="hidden lg:flex w-64 flex-shrink-0 bg-slate-800 flex-col h-screen sticky top-0">
-        <SidebarContent />
+        <SidebarContent
+          user={user}
+          alertCount={alertCount}
+          pathname={pathname}
+          onNavigate={handleNavigate}
+          onLogout={handleLogout}
+        />
       </div>
     </>
   );

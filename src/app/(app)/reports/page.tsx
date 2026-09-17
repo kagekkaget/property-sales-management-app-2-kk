@@ -43,7 +43,12 @@ export default function ReportsPage() {
     }
   }, []);
 
-  useEffect(() => { fetchReport(reportType); }, [fetchReport, reportType]);
+  useEffect(() => {
+    const loadReport = async () => {
+      await fetchReport(reportType);
+    };
+    loadReport();
+  }, [reportType]);
 
   const handleExportCSV = () => {
     if (data.length === 0) { addToast("Tidak ada data untuk diekspor", "warning"); return; }

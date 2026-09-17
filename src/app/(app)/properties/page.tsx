@@ -66,9 +66,14 @@ export default function PropertiesPage() {
   }, []);
 
   useEffect(() => {
-    fetchProperties();
-    fetch("/api/auth/me").then(r => r.json()).then(d => setUserRole(d.user?.role || "staff"));
-  }, [fetchProperties]);
+    const loadData = async () => {
+      await fetchProperties();
+      const res = await fetch("/api/auth/me");
+      const d = await res.json();
+      setUserRole(d.user?.role || "staff");
+    };
+    loadData();
+  }, []);
 
   const filtered = properties.filter((p) => {
     const matchSearch = !search || p.name.toLowerCase().includes(search.toLowerCase()) ||

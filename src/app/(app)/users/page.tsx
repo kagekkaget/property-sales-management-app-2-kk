@@ -50,12 +50,15 @@ export default function UsersPage() {
   }, []);
 
   useEffect(() => {
-    fetchUsers();
-    fetch("/api/auth/me").then(r => r.json()).then(d => {
+    const loadData = async () => {
+      await fetchUsers();
+      const res = await fetch("/api/auth/me");
+      const d = await res.json();
       setCurrentUserId(d.user?.id);
       if (d.user?.role !== "owner") setIsNotOwner(true);
-    });
-  }, [fetchUsers]);
+    };
+    loadData();
+  }, []);
 
   if (isNotOwner) {
     return (

@@ -49,7 +49,12 @@ export default function CustomersPage() {
     }
   }, []);
 
-  useEffect(() => { fetchCustomers(); }, [fetchCustomers]);
+  useEffect(() => {
+    const loadCustomers = async () => {
+      await fetchCustomers();
+    };
+    loadCustomers();
+  }, []);
 
   const filtered = customers.filter((c) => {
     if (!search) return true;
