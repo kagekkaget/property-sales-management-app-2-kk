@@ -6,7 +6,17 @@ import { comparePassword, setSession } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json();
+    let email: string, password: string;
+    try {
+      const body = await request.json();
+      email = body.email;
+      password = body.password;
+    } catch (e) {
+      return NextResponse.json(
+        { error: "Invalid JSON body", detail: String(e) },
+        { status: 400 }
+      );
+    }
 
     if (!email || !password) {
       return NextResponse.json(
