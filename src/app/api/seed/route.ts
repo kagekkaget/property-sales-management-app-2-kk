@@ -54,7 +54,7 @@ export async function POST() {
       ]
     });
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: "Gagal membuat data" }, { status: 500 });
+    console.error("Seed error:", error);
+    return NextResponse.json({ error: "Gagal membuat data", detail: error instanceof Error ? error.message : String(error) }, { status: 500 });
   }
 }
